@@ -1,4 +1,4 @@
 BUILD_DIRECTORY := $(TOP)/build
 OBJDIR := obj
 LIBDIR := lib
-CC := g++ -c -MMD
+CC := g++

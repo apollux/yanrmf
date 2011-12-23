@@ -35,9 +35,9 @@ include $(MK)/config.mk
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
 ifeq ($(TOP), $(d))
-RELPATH = 
+  RELPATH = 
 else
-RELPATH = $(patsubst $(TOP)/%,%,$(d))
+  RELPATH = $(patsubst $(TOP)/%,%,$(d))
 endif
 OBJPATH = $(BUILD_DIRECTORY)/$(RELPATH)/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(RELPATH)/$(LIBDIR)
@@ -52,33 +52,48 @@ d := $$(firstword $$(dir_stack))
 dir_stack := $$(wordlist 2,$$(words $$(dir_stack)),$$(dir_stack))
 endef
 
-COMPILE.c = $(call echo_cmd,CC $<) $(CC) 
-
+COMPILE.c = $(call echo_cmd,CC $<) $(CC) -c -MMD
 COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 
+SHARED_LIBRARY_BUILDER = $(call echo_cmd,Creating library $@)\
+  $(CC) -o $@ $^ -shared
+
 define directory_skeleton
-$(1): 
-	@echo make sure $(1) exists
-	@[ -d $(1) ] || echo "creating directory: $(1)"; mkdir -p $(1)
+$(1):
+	@[ -d $(1) ] ||\
+	$(if $(findstring true,$(VERBOSE)), echo "creating directory: $(1)"; )\
+	mkdir -p $(1)
 endef
 
 define object_skeleton
-$(OBJPATH)/%.o: $(1)/%.cpp | $(OBJPATH)
-	@echo object rule from cpp
+# Include dependancy files for object targets if exists.
+-include $(addprefix $(OBJPATH)/,$(addsuffix .d,$(basename $(SRCS))))
 
+# Rule to create object from .cpp file
+$(OBJPATH)/%.o: $(1)/%.cpp | $(OBJPATH)
+	$(warning "Not implemented (yet)!")
+
+# Rule to create object from .c file
 $(OBJPATH)/%.o: $(1)/%.c | $(OBJPATH)
-	@echo object rule from c
 	$(value COMPILECMD)
 endef
 
-define library_skeleton
-DEBUG = $(LIBRARY_PATH)/$(1)
-$(LIBRARY_PATH)/$(1):
-	@echo "creating library
+define shared_library_skeleton
+$(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
+	$(value SHARED_LIBRARY_BUILDER)
+endef
 
-#$(LIBRARY_PATH)/%.ext: $(1)/%.cpp | $(LIBRARY_PATH)
-#	@echo object rule from cpp
+# Store al dependencies from the current Rules.mk for the current shared library
+# in DEPS_<absolute path to library>
+# This assumes all dependencies on a shared library are object files.
+define save_shared_library_deps
+  deps = $$($(1)_DEPS)
 
+  # absolute paths are needed for the prerequisites 
+  abs_deps := $$(filter /%,$$(deps))
+  rel_deps := $$(filter-out /%,$$(deps))
+  abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
+  DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
 endef
 
 # Suck in the default rules

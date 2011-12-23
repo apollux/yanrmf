@@ -9,5 +9,5 @@ endif
 SRCS :=
 OBJS :=
 CLEAN :=
-TARGETS :=
+LIBRARIES :=
 SUBDIRS :=
