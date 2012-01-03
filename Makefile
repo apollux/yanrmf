@@ -33,8 +33,7 @@ info:
 	@echo Rundir: $(RUNDIR)
 	@echo Top: $(TOP)
 	@echo d: $(d)
-	@echo Subdirs: $(SUBDIRS_$(d))
-	@echo Relpath: $(RELPATH)
+	@echo Subdirs: $(SUBDIRS_$(RUNDIR))
 	@echo Objpath: $(OBJPATH)
 
 

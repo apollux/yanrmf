@@ -39,6 +39,7 @@ OBJPATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 
 define include_subdir_rules
+$(warning SUBDIRS $(SUBDIRS) d $d 1 $(1))
 dir_stack := $(d) $(dir_stack)
 d := $(d)/$(1)
 include $(MK)/header.mk
@@ -46,6 +47,10 @@ include $(addsuffix /Rules.mk,$$(d))
 include $(MK)/footer.mk
 d := $$(firstword $$(dir_stack))
 dir_stack := $$(wordlist 2,$$(words $$(dir_stack)),$$(dir_stack))
+endef
+
+define subtree_targets
+$(TARGETS_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_targets,$(sd)))
 endef
 
 COMPILE.c = $(call echo_cmd,CC $<) $(CC) -c -MMD

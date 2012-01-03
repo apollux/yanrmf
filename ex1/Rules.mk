@@ -1,5 +1,9 @@
+SUBDIRS = Dir_1 
 #TARGETS = app.exe cli.exe
-SUBDIRS = Dir_1 Dir_2 Dir_3
+#Dir_2 Dir_3
+
+SHARED_LIBRARIES = app.so
+app.so_DEPS = top_a.o top_b.o main.o 
 
 #app.exe_DEPS = top_a.o top_b.o main.o $(SUBDIRS_TGTS)
 #app.exe_LIBS = -lm

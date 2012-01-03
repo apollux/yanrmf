@@ -33,11 +33,14 @@ $(foreach lib,$(strip $(SHARED_LIBRARIES)),$(eval $(call save_shared_library_dep
 $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call shared_library_skeleton,$(lib))))
 endif
 
+
+
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
-TARGETS_$(d) := $(OBJS_$(d)) $(SHARED_LIBRARIES_$(d))
+TARGETS_$(d) := $(OBJS_$(d)) $(SHARED_LIBRARIES_$(d)) $(call subtree_targets,$(d))
 
 ## $(call subtree_rules_file,$(d))
 dir_$(d) : $(TARGETS_$(d))
 	@echo DEBUG $(DEBUG)
+	@echo Prerequisites $^
 
