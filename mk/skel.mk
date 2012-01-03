@@ -66,21 +66,23 @@ $(1):
 	mkdir -p $(1)
 endef
 
+# Argument 1 directory for which the skeleton in created
+# Argument 2 extra dependency if applicable
 define object_skeleton
 # Include dependancy files for object targets if exists.
 -include $(addprefix $(OBJPATH)/,$(addsuffix .d,$(basename $(SRCS))))
 
 # Rule to create object from .cpp file
-$(OBJPATH)/%.o: $(1)/%.cpp | $(OBJPATH)
+$(OBJPATH)/%.o: $(1)/%.cpp $(2)| $(OBJPATH)
 	$(warning "Not implemented (yet)!")
 
 # Rule to create object from .c file
-$(OBJPATH)/%.o: $(1)/%.c | $(OBJPATH)
+$(OBJPATH)/%.o: $(1)/%.c $(2)| $(OBJPATH)
 	$(value COMPILECMD)
 endef
 
 define shared_library_skeleton
-$(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
+$(1): $(DEPS_$(1)) $(2)| $(LIBRARY_PATH)
 	$(value SHARED_LIBRARY_BUILDER)
 endef
 

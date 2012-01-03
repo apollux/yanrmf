@@ -17,13 +17,13 @@ endif
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJPATH)))
 
-$(eval $(call object_skeleton,$(d)))
+$(eval $(call object_skeleton,$(d),$(d)/Rules.mk))
 # and for each SRCS_VPATH subdirectory of "current dir"
-$(foreach vd,$(SRCS_VPATH),$(eval $(call skeleton,$(d)/$(vd))))
+$(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd),$(d)/Rules.mk)))
 
 ifdef SHARED_LIBRARIES
 # dependency on target directory
-$(eval $(call directory_skeleton,$(LIBRARY_PATH)))
+$(eval $(call directory_skeleton,$(LIBRARY_PATH),$(d)/Rules.mk))
 
 SHARED_LIBRARIES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(SHARED_LIBRARIES))
 
