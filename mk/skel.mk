@@ -34,13 +34,9 @@ include $(MK)/config.mk
 # Where to put the compiled objects.  You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
-ifeq ($(TOP), $(d))
-  RELPATH = 
-else
-  RELPATH = $(patsubst $(TOP)/%,%,$(d))
-endif
-OBJPATH = $(BUILD_DIRECTORY)/$(RELPATH)/$(OBJDIR)
-LIBRARY_PATH = $(BUILD_DIRECTORY)/$(RELPATH)/$(LIBDIR)
+
+OBJPATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
+LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 
 define include_subdir_rules
 dir_stack := $(d) $(dir_stack)
@@ -87,13 +83,13 @@ endef
 # in DEPS_<absolute path to library>
 # This assumes all dependencies on a shared library are object files.
 define save_shared_library_deps
-  deps = $$($(1)_DEPS)
+deps = $$($(1)_DEPS)
 
-  # absolute paths are needed for the prerequisites 
-  abs_deps := $$(filter /%,$$(deps))
-  rel_deps := $$(filter-out /%,$$(deps))
-  abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
-  DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
+# absolute paths are needed for the prerequisites 
+abs_deps := $$(filter /%,$$(deps))
+rel_deps := $$(filter-out /%,$$(deps))
+abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
+DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
 endef
 
 # Suck in the default rules

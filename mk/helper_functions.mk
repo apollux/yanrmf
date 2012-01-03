@@ -45,3 +45,11 @@ endif
 else # Verbose output
 echo_cmd =
 endif
+
+# Argument 1 root path to which the relative path should relate. No trailing '/'.
+# Argument 2 path to somewhere under root for which the relative path should be
+# returned. No trailing '/'.
+# If both path are equal return empty string otherwise return relative path
+define relative_path
+$(if $(filter $(1),$(2)),,$(patsubst $(1)/%,%,$(2)))
+endef
