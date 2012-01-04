@@ -13,9 +13,10 @@ else # Populate OBJS_ from SRCS
   OBJS_$(d) := $(addprefix $(OBJPATH)/,$(addsuffix .o,$(basename $(SRCS))))
 endif
 
-
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJPATH)))
+
+#$(eval $(call include_dependency_files,$(OBJS_$(d))))
 
 $(eval $(call object_skeleton,$(d),$(d)/Rules.mk))
 # and for each SRCS_VPATH subdirectory of "current dir"
@@ -29,8 +30,12 @@ SHARED_LIBRARIES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(SHARED_LIBRARIES))
 
 # get the dependencies
 $(foreach lib,$(strip $(SHARED_LIBRARIES)),$(eval $(call save_shared_library_deps,$(lib))))
+
 # create target rules
 $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call shared_library_skeleton,$(lib))))
+
+# include depency files for al prerequisites
+$(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
 endif
 
 

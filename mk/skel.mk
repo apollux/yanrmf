@@ -1,5 +1,5 @@
-CFLAGS = -g -W -Wall
-CXXFLAGS = -g -W -Wall
+CFLAGS = -W -Wall
+CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
 
 INCLUDES_LOCATIONS := .
 
@@ -10,10 +10,9 @@ INCLUDES_LOCATIONS := .
 # that builds the dependency files (one can find examples on the web).
 # Note that I'm adding DIR_INCLUDES before INCLUDES so that they have
 # precedence.
-CPPFLAGS = -MMD -D_REENTRANT -D_POSIX_C_SOURCE=200112L -D__EXTENSIONS__ \
-	   -DDEBUG $(addprefix -I,$(INCLUDES_LOCATIONS))
+CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
 
-# Linker flags.  The values below will use what you've specified for
+# Linker flags. The values below will use what you've specified for
 # particular target or directory but if you have some flags or libraries
 # that should be used for all targets/directories just append them at end.
 LDFLAGS = $(LDFLAGS_$(@)) $(addprefix -L,$(LIBDIRS_$(subst /$(OBJDIR),,$(@D))))
@@ -22,19 +21,9 @@ LDLIBS = $(LIBS_$(@))
 include $(MK)/helper_functions.mk
 include $(MK)/config.mk
 
-# ... and here's a good place to translate some of these settings into
-# compilation flags/variables.  As an example a preprocesor macro for
-# target endianess
-#ifeq ($(ENDIAN),big)
-#  CPPFLAGS += -DBIG_ENDIAN
-#else
-#  CPPFLAGS += -DLITTLE_ENDIAN
-#endif
-
 # Where to put the compiled objects.  You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
-
 OBJPATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 
@@ -53,7 +42,8 @@ define subtree_targets
 $(TARGETS_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_targets,$(sd)))
 endef
 
-COMPILE.c = $(call echo_cmd,CC $<) $(CC) -c -MMD
+COMPILE.c = $(call echo_cmd,CC $<) $(CC) $(CPPFLAGS) $(CFLAGS) -c
+COMPILE.cpp = $(call echo_cmd,CXX $<) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c
 COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 
 SHARED_LIBRARY_BUILDER = $(call echo_cmd,Creating library $@)\
@@ -69,12 +59,9 @@ endef
 # Argument 1 directory for which the skeleton in created
 # Argument 2 extra dependency if applicable
 define object_skeleton
-# Include dependancy files for object targets if exists.
--include $(addprefix $(OBJPATH)/,$(addsuffix .d,$(basename $(SRCS))))
-
 # Rule to create object from .cpp file
 $(OBJPATH)/%.o: $(1)/%.cpp $(2)| $(OBJPATH)
-	$(warning "Not implemented (yet)!")
+	$(value COMPILECMD)
 
 # Rule to create object from .c file
 $(OBJPATH)/%.o: $(1)/%.c $(2)| $(OBJPATH)
@@ -84,6 +71,14 @@ endef
 define shared_library_skeleton
 $(1): $(DEPS_$(1)) $(2)| $(LIBRARY_PATH)
 	$(value SHARED_LIBRARY_BUILDER)
+endef
+
+# Include dependancy files for object targets if exists.
+# Argument 1 list with full path to object for which dependency files should be
+# included.
+# This assumes .d files live at the same location as corresponding .o files.
+define include_dependency_files
+-include $(addsuffix .d,$(basename $(filter %.o,$(1))))
 endef
 
 # Store al dependencies from the current Rules.mk for the current shared library
