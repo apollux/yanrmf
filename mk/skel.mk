@@ -46,7 +46,7 @@ COMPILE.cpp = $(call echo_cmd,CXX $<,$(COLOR_BROWN)) $(CXX) $(CPPFLAGS) $(CXXFLA
 COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 
 SHARED_LIBRARY_BUILDER = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
-  $(CC) -o $@ $^ -shared
+  $(CC) -fPIC -o $@ $^ -shared
 
 
 # Argument when directory which should be created
