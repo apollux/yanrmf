@@ -1,3 +1,4 @@
+# save full path to the subdirs of the current directory
 SUBDIRS_$(d) := $(patsubst %/,%,$(addprefix $(d)/,$(SUBDIRS)))
 
 # check if OBJS are defined in current Rules.mk
@@ -15,8 +16,6 @@ endif
 
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJPATH)))
-
-#$(eval $(call include_dependency_files,$(OBJS_$(d))))
 
 $(eval $(call object_skeleton,$(d),$(d)/Rules.mk))
 # and for each SRCS_VPATH subdirectory of "current dir"
@@ -38,14 +37,10 @@ $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call shared_library_ske
 $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
 endif
 
-
-
+# Build the rules for the subtree
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 TARGETS_$(d) := $(OBJS_$(d)) $(SHARED_LIBRARIES_$(d)) $(call subtree_targets,$(d))
 
 ## $(call subtree_rules_file,$(d))
 dir_$(d) : $(TARGETS_$(d))
-	@echo DEBUG $(DEBUG)
-	@echo Prerequisites $^
-

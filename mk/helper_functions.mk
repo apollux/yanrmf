@@ -38,7 +38,7 @@ endif
 ifneq ($(VERBOSE),true)
 ifeq ($(COLOR_TTY),true)
 echo_prog := $(shell if echo -e | grep -q -- -e; then echo echo; else echo echo -e; fi)
-echo_cmd = @$(echo_prog) "$(FOREGROUND_COLOR)$(1)$(COLOR_DEFAULT)";
+echo_cmd = @$(echo_prog) "$(2)$(1)$(COLOR_DEFAULT)";
 else
 echo_cmd = @echo "$(1)";
 endif
