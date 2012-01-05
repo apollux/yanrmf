@@ -17,6 +17,7 @@ include $(MK)/config.mk
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
 OBJPATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
+EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
 
 
 # Magic happens here. This traverses the directory structure to include all 
@@ -46,6 +47,9 @@ LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
   $(CC) -fPIC -shared -o
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
 LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $^
+
+EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^
 
 # Argument 1 directory which should be created
 define directory_skeleton
@@ -87,6 +91,28 @@ abs_deps := $$(filter /%,$$(deps))
 rel_deps := $$(filter-out /%,$$(deps))
 abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
 DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
+endef
+
+
+# Argument 1 executable for which the skeleton is created
+define executable_skeleton
+$(1): $(DEPS_$(1)) | $(EXECUTABLE_PATH)
+	$(value EXECUTABLE_BUILDER)
+endef
+
+
+#
+#
+#
+define save_executable_deps
+deps = $$($(1)_DEPS)
+# absolute paths are needed for the prerequisites 
+abs_deps := $$(filter /%,$$(deps))
+rel_deps := $$(filter-out /%,$$(deps))
+abs_deps += $$(addprefix $(OBJPATH)/,$$(filter %.o,$$(rel_deps)))
+abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
+#todo! special case for .so
+DEPS_$(EXECUTABLE_PATH)/$(1) = $$(abs_deps)
 endef
 
 

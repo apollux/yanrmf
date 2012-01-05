@@ -6,8 +6,9 @@ dir_stack :=
 include $(MK)/skel.mk
 endif
 
+CLEAN :=
+SUBDIRS :=
 SRCS :=
 OBJS :=
-CLEAN :=
 LIBRARIES :=
-SUBDIRS :=
+EXECUTABLES :=

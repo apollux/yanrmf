@@ -1,3 +1,3 @@
 #include "blaat.h"
-
-void world(){}
+#include <iostream>
+void world(){std::cout << "world";}

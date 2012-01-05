@@ -34,7 +34,24 @@ $(foreach lib,$(strip $(LIBRARIES)),$(eval $(call save_library_deps,$(lib))))
 $(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call library_skeleton,$(lib))))
 
 ## include depency files for all prerequisites
-$(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
+$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
+endif
+
+
+ifdef EXECUTABLES
+# dependency on target directory
+$(eval $(call directory_skeleton,$(EXECUTABLE_PATH)))
+
+EXECUTABLES_$(d) := $(addprefix $(EXECUTABLE_PATH)/,$(EXECUTABLES))
+
+# get the dependencies
+$(foreach exe,$(strip $(EXECUTABLES)),$(eval $(call save_executable_deps,$(exe))))
+
+# create target rules
+$(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
+
+## include depency files for all prerequisites
+$(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(exe)))))
 endif
 
 
@@ -42,7 +59,9 @@ endif
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 
-TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(call subtree_targets,$(d))
+TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
 
 dir_$(d) : $(TARGETS_$(d))
 	@echo DEBUG: $(DEBUG)
+	@echo LIBRARIES_/home/andre/workspace/nonrec-make_own_attempt/ex1/Dir_1: $(LIBRARIES_/home/andre/workspace/nonrec-make_own_attempt/ex1/Dir_1)
+	
