@@ -28,7 +28,7 @@ $(eval $(call directory_skeleton,$(LIBRARY_PATH)))
 LIBRARIES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(LIBRARIES))
 
 # get the dependencies
-$(foreach lib,$(strip $(LIBRARIES)),$(eval $(call save_library_deps,$(lib))))
+$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call save_target_variables,$(lib))))
 
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
@@ -49,7 +49,7 @@ $(eval $(call directory_skeleton,$(EXECUTABLE_PATH)))
 EXECUTABLES_$(d) := $(addprefix $(EXECUTABLE_PATH)/,$(EXECUTABLES))
 
 # get the dependencies
-$(foreach exe,$(strip $(EXECUTABLES)),$(eval $(call save_executable_deps,$(exe))))
+$(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call save_target_variables,$(exe))))
 
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
@@ -67,12 +67,11 @@ endif
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 
-TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
-
 #every target in this directory depends on Rules.mk
 $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)): $(d)/Rules.mk
 
+TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
+
 dir_$(d) : $(TARGETS_$(d))
 	@echo DEBUG: $(DEBUG)
-	@echo LIBRARIES_/home/andre/workspace/nonrec-make_own_attempt/ex1/Dir_1: $(LIBRARIES_/home/andre/workspace/nonrec-make_own_attempt/ex1/Dir_1)
 	

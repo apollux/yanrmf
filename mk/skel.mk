@@ -79,40 +79,25 @@ $(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
 endef
 
 
-# Store al dependencies from the current Rules.mk for the current library
-# in DEPS_<absolute path to library>
-# This assumes all dependencies on a library are object files.
-define save_library_deps
-deps = $$($(1)_DEPS)
-
-
-# absolute paths are needed for the prerequisites 
-abs_deps := $$(filter /%,$$(deps))
-rel_deps := $$(filter-out /%,$$(deps))
-abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
-DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
-endef
-
-
 # Argument 1 executable for which the skeleton is created
 define executable_skeleton
 $(1): $(DEPS_$(1)) | $(EXECUTABLE_PATH)
 	$(value EXECUTABLE_BUILDER)
 endef
 
-
-#
-#
-#
-define save_executable_deps
-deps = $$($(1)_DEPS)
+# Store al dependencies from the current Rules.mk for the target passed as
+# Argument 1 in DEPS_<absolute path to target>
+# This assumes all dependencies on a library are object files.
+define save_target_variables
+#full path to target is passed as argument 1 need to get to <target name>_DEPS
+deps = $$($(notdir $(1))_DEPS)
 # absolute paths are needed for the prerequisites 
 abs_deps := $$(filter /%,$$(deps))
 rel_deps := $$(filter-out /%,$$(deps))
 abs_deps += $$(addprefix $(OBJPATH)/,$$(filter %.o,$$(rel_deps)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 #todo! special case for .so
-DEPS_$(EXECUTABLE_PATH)/$(1) = $$(abs_deps)
+DEPS_$(1) = $$(abs_deps)
 endef
 
 
