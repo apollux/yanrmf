@@ -46,10 +46,10 @@ COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
   $(CC) -fPIC -shared -o
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
-LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $^
+LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(filter-out %/Rules.mk,$^)
 
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter-out %/Rules.mk,$^)
 
 # Argument 1 directory which should be created
 define directory_skeleton
@@ -61,14 +61,13 @@ endef
 
 
 # Argument 1 directory for which the skeleton is created
-# Argument 2 extra dependency if applicable
 define object_skeleton
 # Rule to create object from .cpp file
-$(OBJPATH)/%.o: $(1)/%.cpp $(2)| $(OBJPATH)
+$(OBJPATH)/%.o: $(1)/%.cpp | $(OBJPATH)
 	$(value COMPILECMD)
 
 # Rule to create object from .c file
-$(OBJPATH)/%.o: $(1)/%.c $(2)| $(OBJPATH)
+$(OBJPATH)/%.o: $(1)/%.c | $(OBJPATH)
 	$(value COMPILECMD)
 endef
 
@@ -85,6 +84,7 @@ endef
 # This assumes all dependencies on a library are object files.
 define save_library_deps
 deps = $$($(1)_DEPS)
+
 
 # absolute paths are needed for the prerequisites 
 abs_deps := $$(filter /%,$$(deps))

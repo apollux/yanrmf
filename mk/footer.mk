@@ -17,9 +17,9 @@ endif
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJPATH)))
 
-$(eval $(call object_skeleton,$(d),$(d)/Rules.mk))
+$(eval $(call object_skeleton,$(d)))
 # and for each SRCS_VPATH subdirectory of "current dir"
-$(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd),$(d)/Rules.mk)))
+$(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd))))
 
 ifdef LIBRARIES
 # dependency on target directory
@@ -29,6 +29,10 @@ LIBRARIES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(LIBRARIES))
 
 # get the dependencies
 $(foreach lib,$(strip $(LIBRARIES)),$(eval $(call save_library_deps,$(lib))))
+
+# add object depencies to OBJS_$(d) this might cause duplictates in the list
+# but this does not seem to be a problem...
+OBJS_$(d) += $(foreach lib,$(strip $(LIBRARIES_$(d))),$(DEPS_$(lib)))
 
 # create target rules
 $(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call library_skeleton,$(lib))))
@@ -47,6 +51,10 @@ EXECUTABLES_$(d) := $(addprefix $(EXECUTABLE_PATH)/,$(EXECUTABLES))
 # get the dependencies
 $(foreach exe,$(strip $(EXECUTABLES)),$(eval $(call save_executable_deps,$(exe))))
 
+# add object depencies to OBJS_$(d) this might cause duplictates in the list
+# but this does not seem to be a problem...
+OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(filter %.o,$(DEPS_$(exe))))
+
 # create target rules
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
 
@@ -60,6 +68,9 @@ $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 
 TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
+
+#every target in this directory depends on Rules.mk
+$(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)): $(d)/Rules.mk
 
 dir_$(d) : $(TARGETS_$(d))
 	@echo DEBUG: $(DEBUG)
