@@ -23,7 +23,7 @@ $(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd),$(d)/Rules.m
 
 ifdef SHARED_LIBRARIES
 # dependency on target directory
-$(eval $(call directory_skeleton,$(LIBRARY_PATH),$(d)/Rules.mk))
+$(eval $(call directory_skeleton,$(LIBRARY_PATH)))
 
 SHARED_LIBRARIES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(SHARED_LIBRARIES))
 
@@ -33,14 +33,31 @@ $(foreach lib,$(strip $(SHARED_LIBRARIES)),$(eval $(call save_shared_library_dep
 # create target rules
 $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call shared_library_skeleton,$(lib))))
 
-# include depency files for al prerequisites
+# include depency files for all prerequisites
 $(foreach lib,$(strip $(SHARED_LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
+endif
+
+ifdef ARCHIVES
+# dependency on target directory
+$(eval $(call directory_skeleton,$(LIBRARY_PATH),$(d)/Rules.mk))
+
+ARCHIVES_$(d) := $(addprefix $(LIBRARY_PATH)/,$(ARCHIVES))
+
+# get the dependencies
+$(foreach lib,$(strip $(ARCHIVES)),$(eval $(call save_archive_deps,$(lib))))
+# create target rules
+$(foreach lib,$(strip $(ARCHIVES_$(d))),$(eval $(call archive_skeleton,$(lib))))
+
+# include depency files for all prerequisites
+$(foreach lib,$(strip $(ARCHIVES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
 endif
 
 # Build the rules for the subtree
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
-TARGETS_$(d) := $(OBJS_$(d)) $(SHARED_LIBRARIES_$(d)) $(call subtree_targets,$(d))
+#
+TARGETS_$(d) := $(OBJS_$(d)) $(SHARED_LIBRARIES_$(d)) $(call subtree_targets,$(d)) $(ARCHIVES_$(d))
 
 ## $(call subtree_rules_file,$(d))
 dir_$(d) : $(TARGETS_$(d))
+	@echo DEBUG: $(DEBUG)

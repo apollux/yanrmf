@@ -1,8 +1,6 @@
 CFLAGS = -W -Wall
 CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
-
 CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
-
 INCLUDES_LOCATIONS := .
 
 # Linker flags. The values below will use what you've specified for
@@ -48,8 +46,10 @@ COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 SHARED_LIBRARY_BUILDER = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
   $(CC) -fPIC -o $@ $^ -shared
 
+ARCHIVE_BUILDER = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE))\
+  $(AR) rcs $@ $^
 
-# Argument when directory which should be created
+# Argument 1 directory which should be created
 define directory_skeleton
 $(1):
 	@[ -d $(1) ] ||\
@@ -72,9 +72,8 @@ endef
 
 
 # Argument 1 library for which the skeleton is created
-# Argument 2 extra dependency if applicable
 define shared_library_skeleton
-$(1): $(DEPS_$(1)) $(2)| $(LIBRARY_PATH)
+$(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
 	$(value SHARED_LIBRARY_BUILDER)
 endef
 
@@ -93,6 +92,27 @@ abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
 DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
 endef
 
+
+# Argument 1 archive for which the skeleton is created
+define archive_skeleton
+$(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
+	$(value ARCHIVE_BUILDER)
+	@echo $^
+endef
+
+
+# Store al dependencies from the current Rules.mk for the current archive
+# in DEPS_<absolute path to library>
+# This assumes all dependencies on an archive are object files.
+define save_archive_deps
+deps = $$($(1)_DEPS)
+
+# absolute paths are needed for the prerequisites 
+abs_deps := $$(filter /%,$$(deps))
+rel_deps := $$(filter-out /%,$$(deps))
+abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
+DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
+endef
 
 # Include dependancy files for object targets if exists.
 # Argument 1 list with full path to object for which dependency files should be

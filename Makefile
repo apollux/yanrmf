@@ -22,7 +22,10 @@ MK := $(TOP)/mk
 .PHONY: all clean clean_all clean_tree
 .DEFAULT_GOAL := dir_$(RUNDIR)
 
-clean : clean_$(RUNDIR)
+#clean : clean_$(RUNDIR)
+clean: 
+	rm -rf $(BUILD_DIRECTORY)
+
 clean_tree : clean_tree_$(RUNDIR)
 
 include $(MK)/header.mk

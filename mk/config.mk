@@ -3,3 +3,5 @@ OBJDIR := obj
 LIBDIR := lib
 CC := gcc
 CXX := g++
+AR := ar
+
