@@ -23,7 +23,6 @@ LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 # Rules.mk files and build the rules.
 
 define include_subdir_rules
-$(warning SUBDIRS $(SUBDIRS) d $d 1 $(1))
 dir_stack := $(d) $(dir_stack)
 d := $(d)/$(1)
 include $(MK)/header.mk
@@ -43,11 +42,10 @@ COMPILE.c = $(call echo_cmd,CC $<,$(COLOR_BROWN)) $(CC) $(CPPFLAGS) $(CFLAGS) -c
 COMPILE.cpp = $(call echo_cmd,CXX $<,$(COLOR_BROWN)) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c
 COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 
-SHARED_LIBRARY_BUILDER = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
-  $(CC) -fPIC -o $@ $^ -shared
-
-ARCHIVE_BUILDER = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE))\
-  $(AR) rcs $@ $^
+LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
+  $(CC) -fPIC -shared -o
+LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
+LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $^
 
 # Argument 1 directory which should be created
 define directory_skeleton
@@ -72,39 +70,16 @@ endef
 
 
 # Argument 1 library for which the skeleton is created
-define shared_library_skeleton
+define library_skeleton
 $(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
-	$(value SHARED_LIBRARY_BUILDER)
+	$(value LIBRARY_BUILDER)
 endef
 
 
-# Store al dependencies from the current Rules.mk for the current shared library
+# Store al dependencies from the current Rules.mk for the current library
 # in DEPS_<absolute path to library>
-# This assumes all dependencies on a shared library are object files.
-define save_shared_library_deps
-deps = $$($(1)_DEPS)
-
-
-# absolute paths are needed for the prerequisites 
-abs_deps := $$(filter /%,$$(deps))
-rel_deps := $$(filter-out /%,$$(deps))
-abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
-DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
-endef
-
-
-# Argument 1 archive for which the skeleton is created
-define archive_skeleton
-$(1): $(DEPS_$(1)) | $(LIBRARY_PATH)
-	$(value ARCHIVE_BUILDER)
-	@echo $^
-endef
-
-
-# Store al dependencies from the current Rules.mk for the current archive
-# in DEPS_<absolute path to library>
-# This assumes all dependencies on an archive are object files.
-define save_archive_deps
+# This assumes all dependencies on a library are object files.
+define save_library_deps
 deps = $$($(1)_DEPS)
 
 # absolute paths are needed for the prerequisites 
@@ -113,6 +88,7 @@ rel_deps := $$(filter-out /%,$$(deps))
 abs_deps += $$(addprefix $(OBJPATH)/,$$(rel_deps))
 DEPS_$(LIBRARY_PATH)/$(1) = $$(abs_deps)
 endef
+
 
 # Include dependancy files for object targets if exists.
 # Argument 1 list with full path to object for which dependency files should be
