@@ -15,7 +15,7 @@ include $(MK)/config.mk
 # Where to put the compiled objects.  You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
-OBJPATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
+OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
 
@@ -63,11 +63,11 @@ endef
 # Argument 1 directory for which the skeleton is created
 define object_skeleton
 # Rule to create object from .cpp file
-$(OBJPATH)/%.o: $(1)/%.cpp | $(OBJPATH)
+$(OBJECT_PATH)/%.o: $(1)/%.cpp | $(OBJECT_PATH)
 	$(value COMPILECMD)
 
 # Rule to create object from .c file
-$(OBJPATH)/%.o: $(1)/%.c | $(OBJPATH)
+$(OBJECT_PATH)/%.o: $(1)/%.c | $(OBJECT_PATH)
 	$(value COMPILECMD)
 endef
 
@@ -78,7 +78,7 @@ define library_skeleton
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
-abs_deps += $$(addprefix $(OBJPATH)/,$$(filter %.o,$$(rel_deps)))
+abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 #todo! special case for .so
 $(1): $$(abs_deps) | $(LIBRARY_PATH)
 	$(value LIBRARY_BUILDER)
@@ -90,7 +90,7 @@ define executable_skeleton
 # absolute paths are needed for the prerequisites 
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
-abs_deps += $$(addprefix $(OBJPATH)/,$$(filter %.o,$$(rel_deps)))
+abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 #todo! special case for .so
 $(1): $$(abs_deps) | $(EXECUTABLE_PATH)
