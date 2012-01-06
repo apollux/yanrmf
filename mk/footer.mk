@@ -33,12 +33,6 @@ $(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call save_target_variables,$(l
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
 OBJS_$(d) += $(foreach lib,$(strip $(LIBRARIES_$(d))),$(DEPS_$(lib)))
-
-# create target rules
-$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call library_skeleton,$(lib))))
-
-## include depency files for all prerequisites
-$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
 endif
 
 
@@ -54,17 +48,29 @@ $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call save_target_variables,$
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
 OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(filter %.o,$(DEPS_$(exe))))
+endif
 
+
+# Build the rules for the subtree
+$(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
+
+
+ifdef LIBRARIES_$(d)
+# create target rules
+$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call library_skeleton,$(lib))))
+
+## include depency files for all prerequisites
+$(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(lib)))))
+endif
+
+
+ifdef EXECUTABLES_$(d)
 # create target rules
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
 
 ## include depency files for all prerequisites
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call include_dependency_files,$(DEPS_$(exe)))))
 endif
-
-
-# Build the rules for the subtree
-$(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 
 #every target in this directory depends on Rules.mk

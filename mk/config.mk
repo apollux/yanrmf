@@ -1,7 +1,7 @@
 BUILD_DIRECTORY := $(TOP)/build
 OBJDIR := obj
 LIBDIR := lib
-EXEDIR := exe
+EXEDIR := out
 SRCS_VPATH := src
 
 CC := gcc

@@ -3,8 +3,7 @@ SUBDIRS = Dir_1
 EXECUTABLES = app
 #cli.exe
 
-app_DEPS = top_a.o top_b.o main.o 
-#../Dir_1/lib/libdir1.a
+app_DEPS = main.o top_a.o top_b.o $(LIBRARIES_$(d)/Dir_1)
 app_LDFLAGS = -lpthread
 
 #app.exe_DEPS = top_a.o top_b.o main.o $(SUBDIRS_TGTS)
