@@ -49,7 +49,7 @@ LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) r
 LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(filter-out %/Rules.mk,$^)
 
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter-out %/Rules.mk,$^)
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(filter-out %/Rules.mk,$^)) $(filter-out %.o,$(filter-out %/Rules.mk,$^))
 
 # Argument 1 directory which should be created
 define directory_skeleton
