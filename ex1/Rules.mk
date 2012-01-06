@@ -4,9 +4,8 @@ EXECUTABLES = app
 #cli.exe
 
 app_DEPS = top_a.o top_b.o main.o 
-#$(LIBRARIES_$(d)/Dir_1)
-DEBUG += $(LIBRARIES_$(d)/ex1/Dir_1)
-#Dir_1/libdir1.a 
+#../Dir_1/lib/libdir1.a
+app_LDFLAGS = -lpthread
 
 #app.exe_DEPS = top_a.o top_b.o main.o $(SUBDIRS_TGTS)
 #app.exe_LIBS = -lm

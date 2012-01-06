@@ -98,6 +98,11 @@ abs_deps += $$(addprefix $(OBJPATH)/,$$(filter %.o,$$(rel_deps)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 #todo! special case for .so
 DEPS_$(1) = $$(abs_deps)
+
+# save linker flags for target, this saves it for all targets but it makes only
+# sense for EXECUTABLES. However it's not a problem to save the value for all
+# kind of targets
+LDFLAGS_$(1) = $$($(notdir $(1))_LDFLAGS)
 endef
 
 
