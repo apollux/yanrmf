@@ -1,7 +1,7 @@
 CFLAGS = -W -Wall
 CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
 CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
-INCLUDES_LOCATIONS := .
+INCLUDES_LOCATIONS := . ./include
 
 # Linker flags. The values below will use what you've specified for
 # particular target or directory but if you have some flags or libraries

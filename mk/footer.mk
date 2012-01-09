@@ -1,3 +1,6 @@
+# add current direcory and current  directory/include to include locations.
+INCLUDES_LOCATIONS += $(d) $(d)/include
+
 # save full path to the subdirs of the current directory
 SUBDIRS_$(d) := $(patsubst %/,%,$(addprefix $(d)/,$(SUBDIRS)))
 
@@ -14,12 +17,14 @@ else # Populate OBJS_ from SRCS
   OBJS_$(d) := $(addprefix $(OBJECT_PATH)/,$(addsuffix .o,$(basename $(SRCS))))
 endif
 
+
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJECT_PATH)))
 
 $(eval $(call object_skeleton,$(d)))
 # and for each SRCS_VPATH subdirectory of "current dir"
 $(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd))))
+
 
 ifdef LIBRARIES
 # dependency on target directory
@@ -65,6 +70,7 @@ ifdef EXECUTABLES_$(d)
 # create target rules
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
 endif
+
 
 ## include depency files for all objects
 $(foreach obj,$(strip $(OBJS_$(d))),$(eval $(call include_dependency_files,$(obj))))

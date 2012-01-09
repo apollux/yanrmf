@@ -1,6 +1,4 @@
-/*extern void function_dir_3_file1(void);*/
-
-extern void function_dir_1_file1(void);
+#include "Dir_1/dir_1_file1.h"
 
 int main()
 {
