@@ -1,8 +1,3 @@
-# When I'm using default shell on Cygwin $(shell pwd) does not give the
-# same result as $(shell echo $$PWD) or $(shell echo `pwd`).  It gives
-# me path with symbolic links resolved whereas the later two do not do
-# that.  I prefer unresolved version and since simple $(shell pwd) looks
-# nicer than other two I'm sticking with bash :).
 SHELL := /bin/bash
 RUNDIR := $(shell pwd)
 ifndef TOP
@@ -19,25 +14,21 @@ endif
 
 MK := $(TOP)/mk
 
-.PHONY: all clean clean_all clean_tree
+.PHONY: all clean clean_all 
 .DEFAULT_GOAL := dir_$(RUNDIR)
 
-#clean : clean_$(RUNDIR)
 clean: 
 	rm -rf $(BUILD_DIRECTORY)
 
-clean_tree : clean_tree_$(RUNDIR)
+#clean: clean_$(RUNDIR)
 
 include $(MK)/header.mk
 include $(TOP)/Rules.top
 include $(MK)/footer.mk
 
-info:
-	@echo Rundir: $(RUNDIR)
-	@echo Top: $(TOP)
-	@echo d: $(d)
-	@echo Subdirs: $(SUBDIRS_$(RUNDIR))
-	@echo Objpath: $(OBJPATH)
+
+# Whole tree targets
+all: $(TARGETS_$(TOP))
 
 
 # This is just a convenience - to let you know when make has stopped
