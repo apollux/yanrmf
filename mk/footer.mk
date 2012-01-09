@@ -14,7 +14,8 @@ else # Populate OBJS_ from SRCS
     SRCS := $(notdir $(foreach sd,. $(SRCS_VPATH),$(wildcard $(addprefix $(d)/$(sd)/,$(SRCS)))))
   endif
 
-  OBJS_$(d) := $(addprefix $(OBJECT_PATH)/,$(addsuffix .o,$(basename $(SRCS))))
+  OBJS := $(addsuffix .o,$(basename $(SRCS)))
+  OBJS_$(d) := $(addprefix $(OBJECT_PATH)/,$(OBJS))
 endif
 
 
