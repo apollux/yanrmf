@@ -81,5 +81,3 @@ $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)): $(d)/Rules.mk
 TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
 
 dir_$(d) : $(TARGETS_$(d))
-	@echo DEBUG: $(DEBUG)
-

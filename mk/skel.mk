@@ -1,15 +1,18 @@
+include $(MK)/helper_functions.mk
+
+
 CFLAGS = -W -Wall
 CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
-CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
 INCLUDES_LOCATIONS := . ./include
+CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
 
 # Linker flags. The values below will use what you've specified for
 # particular target or directory but if you have some flags or libraries
 # that should be used for all targets/directories just append them at end.
-LDFLAGS = $(LDFLAGS_$(@)) $(addprefix -L,$(LIBDIRS_$(subst /$(OBJDIR),,$(@D))))
+LDFLAGS = $(LDFLAGS_$(@))
 LDLIBS = $(LIBS_$(@))
 
-include $(MK)/helper_functions.mk
+# Get user config optionally override defaults.
 include $(MK)/config.mk
 
 # Where to put the compiled objects.  You can e.g. make it different
@@ -22,7 +25,6 @@ EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
 
 # Magic happens here. This traverses the directory structure to include all 
 # Rules.mk files and build the rules.
-
 define include_subdir_rules
 dir_stack := $(d) $(dir_stack)
 d := $(d)/$(1)
@@ -32,6 +34,7 @@ include $(MK)/footer.mk
 d := $$(firstword $$(dir_stack))
 dir_stack := $$(wordlist 2,$$(words $$(dir_stack)),$$(dir_stack))
 endef
+
 
 # Creates a list of all targets of the subtree
 define subtree_targets
@@ -48,8 +51,10 @@ LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
 LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(filter-out %/Rules.mk,$^)
 
+# object files are passed to linker before archives to prevent linking errors.
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
   $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(filter-out %/Rules.mk,$^)) $(filter-out %.o,$(filter-out %/Rules.mk,$^))
+
 
 # Argument 1 directory which should be created
 define directory_skeleton
