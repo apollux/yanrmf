@@ -1,6 +1,7 @@
 # add current direcory and current  directory/include to include locations.
 INCLUDES_LOCATIONS += $(d) $(d)/include
 
+
 # save full path to the subdirs of the current directory
 SUBDIRS_$(d) := $(patsubst %/,%,$(addprefix $(d)/,$(SUBDIRS)))
 
@@ -17,6 +18,15 @@ else # Populate OBJS_ from SRCS
   OBJS := $(addsuffix .o,$(basename $(SRCS)))
   OBJS_$(d) := $(addprefix $(OBJECT_PATH)/,$(OBJS))
 endif
+
+# Get all test directories
+TESTS_LOCATIONS += $(foreach vd,. $(SRCS_VPATH),$(d)/$(vd)/test)
+# Get all unit tests sources
+TESTS_SRCS += $(foreach vd,. $(SRCS_VPATH),$(wildcard $(d)/$(vd)/test/*.cpp))
+
+# Get the objects under test. Test header files should be named by the
+# following convention: Test<basename of .cpp file under test>.h
+OBJECTS_UNDER_TEST += $(foreach vd,. $(SRCS_VPATH),$(addprefix $(OBJECT_PATH)/,$(patsubst Test%,%.o,$(notdir $(basename $(wildcard $(d)/$(vd)/test/*.h))))))
 
 
 # Use the object_skeleton for the "current dir"

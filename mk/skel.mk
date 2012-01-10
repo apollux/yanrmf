@@ -4,7 +4,12 @@ include $(MK)/helper_functions.mk
 CFLAGS = -W -Wall
 CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
 INCLUDES_LOCATIONS := . ./include
-CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
+CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) $(addprefix -I,$(TESTS_LOCATIONS))
+
+TESTS_LOCATIONS :=
+TESTS_SRCS := 
+OBJECTS_UNDER_TEST :=
+
 
 # Linker flags. The values below will use what you've specified for
 # particular target or directory but if you have some flags or libraries
@@ -21,6 +26,9 @@ include $(MK)/config.mk
 OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
+
+# convenience variable to get the 'real' dependencies of a target, so the object files and or libraries
+SANITIZED_^ = $(filter-out %/Rules.mk,$(filter-out %external_build,$^))
 
 
 # Magic happens here. This traverses the directory structure to include all 
@@ -49,11 +57,12 @@ COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
   $(CC) -fPIC -shared -o
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
-LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(filter-out %/Rules.mk,$^)
+LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 
 # object files are passed to linker before archives to prevent linking errors.
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(filter-out %/Rules.mk,$^)) $(filter-out %.o,$(filter-out %/Rules.mk,$^))
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(SANITIZED_^))\
+  $(filter-out %.o,$(SANITIZED_^))
 
 
 # Argument 1 directory which should be created

@@ -285,3 +285,4 @@ cppunit-1.12.1/src/cppunit/XmlOutputterHook.lo
 cppunit-1.12.1/src/cppunit/XmlOutputterHook.o
 cppunit-1.12.1/src/cppunit/libcppunit.la
 build
+Test.xml

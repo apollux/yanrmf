@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "blaat.h"
+#include "Blaat.h"
 #include "blaat2.h"
 
 int main()
