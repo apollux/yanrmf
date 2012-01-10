@@ -57,7 +57,15 @@ OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(addprefix $(OBJECT_PAT
 endif
 
 
+ifdef EXTERNAL_TARGETS
+EXTERNAL_TARGETS_$(d) := $(addprefix $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/,$(EXTERNAL_TARGETS))
+$(foreach external,$(strip $(EXTERNAL_TARGETS_$(d))),$(eval $(call save_external_target_variables,$(external))))
+endif
+
+
 # Build the rules for the subtree
+# Subtree rules should be build before creating recepies for current directory
+# since these will probably depend on subtree targets
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 
@@ -72,13 +80,16 @@ ifdef EXECUTABLES_$(d)
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
 endif
 
+ifdef EXTERNAL_TARGETS_$(d)
+$(foreach external,$(strip $(EXTERNAL_TARGETS_$(d))),$(eval $(call external_target_skeleton,$(external))))
+endif
 
 ## include depency files for all objects
 $(foreach obj,$(strip $(OBJS_$(d))),$(eval $(call include_dependency_files,$(obj))))
 
 #every target in this directory depends on Rules.mk
-$(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)): $(d)/Rules.mk
+$(EXTERNAL_TARGETS_$(d)) $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)): $(d)/Rules.mk
 
-TARGETS_$(d) := $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
+TARGETS_$(d) := $(EXTERNAL_TARGETS_$(d)) $(OBJS_$(d)) $(LIBRARIES_$(d)) $(EXECUTABLES_$(d)) $(call subtree_targets,$(d))
 
 dir_$(d) : $(TARGETS_$(d))

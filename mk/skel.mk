@@ -124,3 +124,12 @@ define include_dependency_files
 -include $(addsuffix .d,$(basename $(filter %.o,$(1))))
 endef
 
+define save_external_target_variables
+CMD_$(1) = $$($(notdir $(1))_CMD)
+endef
+
+define external_target_skeleton
+$(1):
+	$$(CMD_$(1))
+endef
+
