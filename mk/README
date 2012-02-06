@@ -1,0 +1,115 @@
+WHAT DOES IT DO
+This is a framework for Make with as main goal: simplicity in use. Writing
+makefiles can be a tedious job. With this framework all the complex Make
+structures are in one place, hidden from the user. With writing simple Rules.mk
+files, new targets can be easily added to the build.
+
+This framework is a non recursive Make framework. This means make is only
+invoked once, it calculates all dependencies up front, than executes the
+recipes necessary to get the target up to date. Calculating all dependencies up
+front has a major benefit: Make can make best use of the multiple cores of a
+processor.
+
+HOW DOES IT WORK
+When Make is invoked the framework searches for the root directory of the 
+project by looking for a file Rules.top (a symlink to the Rules.mk on that
+level). Than it will traverse the directory structure scanning the directories 
+as specified in the SUBDIRS variable of Rules.top. For each Rules.mk file it
+finds it will look for SUBDIRS and traverse to those directories as well etc. 
+etc.
+
+Once all Rules.mk files are read, it will build the rules for the targets. After
+that is done, Make will execute all recepies to get the target up to date.
+
+HOW TO INVOKE MAKE
+Make can be invoked by simply typing 'make' on the command line. It will search
+for a file called 'Makefile' and evaluate the default target.
+
+By default Make only uses a single thread. In order to speed up the
+building process and make use of all available cores, an additional option needs
+to be passed to Make.
+
+make -j 4
+
+This will tell Make to allow for a maximum of 4 concurrent jobs to run.
+
+By default this framework will use "pretty printing" for build output, hiding
+the exact commands being executed by Make. Make can be invoked as:
+
+make VERBOSE=true
+
+This will disable pretty printing and display the exact commands.
+
+TARGETS
+When Make is invoked without specifying a target, it will build all targets for
+the current directory and all sub directories.
+
+To specify a specific target to build Make should be invoked as follows:
+
+make <target>
+or
+make -j 4 <target>
+
+A couple of special targets have been defined.
+all      : will build every target specified, not only the current directory
+           and its subdirectories.
+clean    : will remove all build output from the file system.
+runtests : Will build the testrunner, all test code and code under test, and
+           the tests will be executed.
+
+HOW TO ADD NEW TARGETS
+Targets are defined in files named Rules.mk. In a Rules.mk file targets for that
+directory are defined. It is possible to define executables, libraries and/or
+object files as target.
+
+Since Rules.mk files are simply makefiles, the full power of Make is available
+for use in these files. However, the goal of this frame work is to keep the
+Rules.mk files simple and straightforward. If complex constructs are needed in a 
+Rules.mk file it might indicate missing functionality of this framework.
+
+The following variables can be used when writing a Rules.mk file.
+SUBDIRS     : space separated list of subdirectories which need to be searched
+              for Rules.mk files.
+SRCS        : space separated list of source files. Wildcards like *.cpp can 
+              be used.
+OBJS        : contains a list of all object files specified for the current
+              directory.
+LIBRARIES   : space separated list of library targets.
+EXECUTABLES : space separated list of executable targets.
+
+<library name>_DEPS       : space separated list of dependencies for this 
+                            library. This can be set to specific objects or to
+                            $(OBJS) for all objects specified by SRCS.
+
+<executable name>_DEPS    : space separated list of dependencies for this 
+                            executable. This can be set to specific objects or
+                            to $(OBJS) for all objects specified by SRCS. 
+                            Archives can be set as a dependency for an 
+                            executable as well.
+
+<executable name>_LDFLAGS : space separated list of arguments passed to the
+                            linker when linking the executable.
+
+IMPORTANT VARIABLES
+TOP             : absolute path to the root of the project.
+BUILD_DIRECTORY : absolute path to the build directory.
+d               : absolute path to the directory of the Rules.mk file currently
+                  being evaluated.
+
+TEST_OBJS          : automatically populated list based on sources in the test
+                     directories.
+OBJECTS_UNDER_TEST : automatically populated list containing all object files
+                     for which a test exists.
+
+FILES IN THE MK FOLDER
+footer.mk           : This file is included after each Rules.mk file creating
+                      the actual rules.
+header.mk           : this file is included every time before a Rules.mk is 
+                      included. This sets every variable which can be set in a
+                      Rules.mk file to empty. Basically just for cleanup.
+                      This file also set d to the current directory.
+helper_functions.mk : file which contains helper functions used in the framework
+project_config.mk   : project configuration like build directories
+project_targets.mk  : optionally : project specific targets
+skel.mk             : The core definitions used in the framework.
+user_config.mk      : optionally : way to overwrite defaults or project settings

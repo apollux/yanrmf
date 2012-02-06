@@ -7,10 +7,6 @@
 # terminal support them but you can suppress coloring by setting COLOR_TTY 
 # to something else than 'true' (see config.mk).
 
-# Please don't argue about this choice of colors - I'm always using black
-# background so yellow on black it is :-D - background is specified
-# below just for those using bright background :-P
-
 COLOR_WHITE := \033[1;37m
 COLOR_LIGHTGRAY := 033[0;37m
 COLOR_GRAY := \033[1;30m
@@ -32,7 +28,7 @@ COLOR_DEFAULT := \033[0m
 FOREGROUND_COLOR := $(COLOR_BROWN)
 
 ifndef COLOR_TTY
-COLOR_TTY := $(shell [ `tput colors` -gt 2 ] && echo true)
+COLOR_TTY := $(shell [ "dumb" != "$$TERM" ] && [ -n "$$TERM" ] && [ `tput colors` -gt 2 ] && echo true)
 endif
 
 ifneq ($(VERBOSE),true)

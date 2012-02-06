@@ -1,7 +1,3 @@
-# add current direcory and current  directory/include to include locations.
-INCLUDES_LOCATIONS += $(d) $(d)/include
-
-
 # save full path to the subdirs of the current directory
 SUBDIRS_$(d) := $(patsubst %/,%,$(addprefix $(d)/,$(SUBDIRS)))
 
@@ -19,15 +15,8 @@ else # Populate OBJS_ from SRCS
   OBJS_$(d) := $(addprefix $(OBJECT_PATH)/,$(OBJS))
 endif
 
-# Get all test directories
-TESTS_LOCATIONS += $(foreach vd,. $(SRCS_VPATH),$(d)/$(vd)/test)
-# Get all unit tests sources
-TESTS_SRCS += $(foreach vd,. $(SRCS_VPATH),$(wildcard $(d)/$(vd)/test/*.cpp))
-
-# Get the objects under test. Test header files should be named by the
-# following convention: Test<basename of .cpp file under test>.h
-OBJECTS_UNDER_TEST += $(foreach vd,. $(SRCS_VPATH),$(addprefix $(OBJECT_PATH)/,$(patsubst Test%,%.o,$(notdir $(basename $(wildcard $(d)/$(vd)/test/*.h))))))
-
+# gather all test object locations
+TEST_OBJS += $(foreach vd,. $(SRCS_VPATH),$(addsuffix .o,$(addprefix $(OBJECT_PATH)/,$(notdir $(basename $(wildcard $(d)/$(vd)/$(TESTDIR)/*.cpp))))))
 
 # Use the object_skeleton for the "current dir"
 $(eval $(call directory_skeleton,$(OBJECT_PATH)))
@@ -35,6 +24,11 @@ $(eval $(call directory_skeleton,$(OBJECT_PATH)))
 $(eval $(call object_skeleton,$(d)))
 # and for each SRCS_VPATH subdirectory of "current dir"
 $(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd))))
+
+# use object skeleton for test directories as well.
+$(eval $(call object_skeleton,$(d)/$(TESTDIR)))
+# and for each SRCS_VPATH subdirectory of "current dir"
+$(foreach vd,$(SRCS_VPATH),$(eval $(call object_skeleton,$(d)/$(vd)/$(TESTDIR))))
 
 
 ifdef LIBRARIES
@@ -63,15 +57,20 @@ $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call save_target_variables,$
 
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
-OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(addprefix $(OBJECT_PATH)/,$(filter %.o,$(DEPS_$(exe)))))
+# 
+# need to filter absolute dependencies for libraries and not prefix those.
+OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(addprefix $(OBJECT_PATH)/,$(filter %.o,$(filter-out /%,$(DEPS_$(exe))))))
+OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(filter /%.o,$(DEPS_$(exe))))
 endif
 
+ifdef TEST_DEPS
+abs_deps := $(filter /%,$(TEST_DEPS))
+rel_deps := $(filter-out /%,$(TEST_DEPS))
+abs_deps += $(addprefix $(LIBRARY_PATH)/,$(filter %.a,$(rel_deps)))
+abs_deps += $(addprefix $(OBJECT_PATH)/,$(filter %.o,$(rel_deps)))
 
-ifdef EXTERNAL_TARGETS
-EXTERNAL_TARGETS_$(d) := $(addprefix $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/,$(EXTERNAL_TARGETS))
-$(foreach external,$(strip $(EXTERNAL_TARGETS_$(d))),$(eval $(call save_external_target_variables,$(external))))
+TEST_DEPENDENCIES += $(abs_deps)
 endif
-
 
 # Build the rules for the subtree
 # Subtree rules should be build before creating recepies for current directory
@@ -90,9 +89,6 @@ ifdef EXECUTABLES_$(d)
 $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(eval $(call executable_skeleton,$(exe))))
 endif
 
-ifdef EXTERNAL_TARGETS_$(d)
-$(foreach external,$(strip $(EXTERNAL_TARGETS_$(d))),$(eval $(call external_target_skeleton,$(external))))
-endif
 
 ## include depency files for all objects
 $(foreach obj,$(strip $(OBJS_$(d))),$(eval $(call include_dependency_files,$(obj))))

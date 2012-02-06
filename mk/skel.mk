@@ -3,13 +3,13 @@ include $(MK)/helper_functions.mk
 
 CFLAGS = -W -Wall
 CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
-INCLUDES_LOCATIONS := . ./include
-CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) $(addprefix -I,$(TESTS_LOCATIONS))
+INCLUDES_LOCATIONS := 
+CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) 
 
-TESTS_LOCATIONS :=
-TESTS_SRCS := 
-OBJECTS_UNDER_TEST :=
 
+# Convenience variables for unit test runner.
+TEST_OBJS :=
+TEST_DEPENDENCIES :=
 
 # Linker flags. The values below will use what you've specified for
 # particular target or directory but if you have some flags or libraries
@@ -17,10 +17,12 @@ OBJECTS_UNDER_TEST :=
 LDFLAGS = $(LDFLAGS_$(@))
 LDLIBS = $(LIBS_$(@))
 
-# Get user config optionally override defaults.
-include $(MK)/config.mk
+# Get project config defaults.
+include $(MK)/project_config.mk
+# Get user config to override project settings.
+-include $(MK)/user_config.mk
 
-# Where to put the compiled objects.  You can e.g. make it different
+# Where to put the compiled objects. You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
 OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
@@ -28,11 +30,12 @@ LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
 EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
 
 # convenience variable to get the 'real' dependencies of a target, so the object files and or libraries
-SANITIZED_^ = $(filter-out %/Rules.mk,$(filter-out %external_build,$^))
+SANITIZED_^ = $(filter-out %/Rules.mk,$^)
 
 
-# Magic happens here. This traverses the directory structure to include all 
-# Rules.mk files and build the rules.
+# This function traverses the directory structure to include all 
+# Rules.mk files and build the rules of the subdirectory. This basically is the
+# most important part of the framework.
 define include_subdir_rules
 dir_stack := $(d) $(dir_stack)
 d := $(d)/$(1)
@@ -59,7 +62,8 @@ LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
 LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 
-# object files are passed to linker before archives to prevent linking errors.
+# Object files are passed to linker before archives to prevent linking errors.
+# It is a bit of a hack but seems sufficient.
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
   $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(SANITIZED_^))\
   $(filter-out %.o,$(SANITIZED_^))
@@ -76,11 +80,15 @@ endef
 
 # Argument 1 directory for which the skeleton is created
 define object_skeleton
-# Rule to create object from .cpp file
+# Rule to create object from .cpp file.
+# An 'order-only' ('|') prerequisite is placed on the output directory. It must
+# exist before trying to put files in it.
 $(OBJECT_PATH)/%.o: $(1)/%.cpp | $(OBJECT_PATH)
 	$(value COMPILECMD)
 
 # Rule to create object from .c file
+# An 'order-only' ('|') prerequisite is placed on the output directory. It must
+# exist before trying to put files in it.
 $(OBJECT_PATH)/%.o: $(1)/%.c | $(OBJECT_PATH)
 	$(value COMPILECMD)
 endef
@@ -93,7 +101,10 @@ abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
-#todo! special case for .so
+#todo! special case for .so. Not implemented
+
+# An 'order-only' ('|') prerequisite is placed on the output directory. It must
+# exist before trying to put files in it.
 $(1): $$(abs_deps) | $(LIBRARY_PATH)
 	$(value LIBRARY_BUILDER)
 endef
@@ -106,7 +117,9 @@ abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
 abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
-#todo! special case for .so
+
+# An 'order-only' ('|') prerequisite is placed on the output directory. It must
+# exist before trying to put files in it.
 $(1): $$(abs_deps) | $(EXECUTABLE_PATH)
 	$(value EXECUTABLE_BUILDER)
 endef
@@ -131,14 +144,5 @@ endef
 # This assumes .d files live at the same location as corresponding .o files.
 define include_dependency_files
 -include $(addsuffix .d,$(basename $(filter %.o,$(1))))
-endef
-
-define save_external_target_variables
-CMD_$(1) = $$($(notdir $(1))_CMD)
-endef
-
-define external_target_skeleton
-$(1):
-	$$(CMD_$(1))
 endef
 
