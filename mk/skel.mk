@@ -2,20 +2,20 @@ include $(MK)/helper_functions.mk
 
 
 CFLAGS = -W -Wall
-CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x
+CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x -Werror
 INCLUDES_LOCATIONS := 
-CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) 
+SYSTEM_INCLUDES_LOCATIONS :=
+CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
 
 
 # Convenience variables for unit test runner.
 TEST_OBJS :=
 TEST_DEPENDENCIES :=
 
-# Linker flags. The values below will use what you've specified for
-# particular target or directory but if you have some flags or libraries
-# that should be used for all targets/directories just append them at end.
+# Linker flags. The value below will use what you've specified for
+# particular target. If you have some flags or libraries
+# that should be used for all targets just append them in the project config
 LDFLAGS = $(LDFLAGS_$(@))
-LDLIBS = $(LIBS_$(@))
 
 # Get project config defaults.
 include $(MK)/project_config.mk
@@ -65,8 +65,8 @@ LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 # Object files are passed to linker before archives to prevent linking errors.
 # It is a bit of a hack but seems sufficient.
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$(SANITIZED_^))\
-  $(filter-out %.o,$(SANITIZED_^))
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $(filter %.o,$(SANITIZED_^))\
+  $(filter-out %.o,$(SANITIZED_^)) $(LDFLAGS)
 
 
 # Argument 1 directory which should be created

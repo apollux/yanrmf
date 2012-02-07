@@ -6,8 +6,9 @@ EXEDIR := out
 SRCS_VPATH := src
 TESTDIR := test
 
-CPPFLAGS += 
-INCLUDES_LOCATIONS += 
+CPPFLAGS +=
+SYSTEM_INCLUDES_LOCATIONS += $(HOME)/workspace/boost_build/include
+LDFLAGS += -L/home/andre/workspace/boost_build/lib
 
 CC := gcc
 CXX := g++
