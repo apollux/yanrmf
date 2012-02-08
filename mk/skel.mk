@@ -2,7 +2,7 @@ include $(MK)/helper_functions.mk
 
 
 CFLAGS = -W -Wall
-CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x -Werror
+CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x -Werror -pedantic-errors
 INCLUDES_LOCATIONS := 
 SYSTEM_INCLUDES_LOCATIONS :=
 CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
