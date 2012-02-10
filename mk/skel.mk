@@ -1,11 +1,14 @@
 include $(MK)/helper_functions.mk
 
-
 CFLAGS = -W -Wall
-CXXFLAGS = -W -Wall -Wold-style-cast -std=c++0x -Werror -pedantic-errors
+CXXFLAGS = -Wold-style-cast -std=c++0x -Werror -pedantic-errors
+CFLAGS_DEBUG = -ggdb
+CFLAGS_RELEASE = -O2 -DNDEBUG -s
+CPPFLAGS = -MMD -MP -pthread $(addprefix -I,$(INCLUDES_LOCATIONS))\
+  $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
+
 INCLUDES_LOCATIONS := 
 SYSTEM_INCLUDES_LOCATIONS :=
-CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS)) $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
 
 
 # Convenience variables for unit test runner.
@@ -17,17 +20,43 @@ TEST_DEPENDENCIES :=
 # that should be used for all targets just append them in the project config
 LDFLAGS = $(LDFLAGS_$(@))
 
+
+COMPILE.c = $(call echo_cmd,CC $<,$(COLOR_BROWN)) $(CC) $(CPPFLAGS) $(CFLAGS) \
+  $(if $(findstring debug,$(VARIANT)),$(CFLAGS_DEBUG),$(CFLAGS_RELEASE)) -c
+COMPILE.cpp = $(call echo_cmd,CXX $<,$(COLOR_BROWN)) $(CXX) $(CPPFLAGS) $(CXXFLAGS) \
+  $(if $(findstring debug,$(VARIANT)),$(CFLAGS_DEBUG),$(CFLAGS_RELEASE)) -c
+COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
+
+LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
+  $(CC) -fPIC -shared -o
+LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
+LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
+
+# Object files are passed to linker before archives to prevent linking errors.
+# It is a bit of a hack but seems sufficient.
+EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN)) \
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS) \
+  $(if $(findstring debug,$(VARIANT)),$(CFLAGS_DEBUG),$(CFLAGS_RELEASE)) \
+  -o $@ $(filter %.o,$(SANITIZED_^)) $(filter-out %.o,$(SANITIZED_^)) $(LDFLAGS)
+
+
 # Get project config defaults.
 include $(MK)/project_config.mk
 # Get user config to override project settings.
 -include $(MK)/user_config.mk
 
+# Two variants supported: debug and release. If no VARIANT is set, default to
+# debug.
+VARIANT := $(if $(findstring undefined,$(origin VARIANT)),debug,\
+  $(if $(findstring debug,$(VARIANT)),debug,\
+  $(if $(findstring release,$(VARIANT)),release,$(error invalid variant))))
+
 # Where to put the compiled objects. You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
-OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(OBJDIR)
-LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(LIBDIR)
-EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(EXEDIR)
+OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(OBJDIR)
+LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(LIBDIR)
+EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(EXEDIR)
 
 # convenience variable to get the 'real' dependencies of a target, so the object files and or libraries
 SANITIZED_^ = $(filter-out %/Rules.mk,$^)
@@ -51,22 +80,6 @@ endef
 define subtree_targets
 $(TARGETS_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_targets,$(sd)))
 endef
-
-
-COMPILE.c = $(call echo_cmd,CC $<,$(COLOR_BROWN)) $(CC) $(CPPFLAGS) $(CFLAGS) -c
-COMPILE.cpp = $(call echo_cmd,CXX $<,$(COLOR_BROWN)) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c
-COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
-
-LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
-  $(CC) -fPIC -shared -o
-LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) $(AR) rcs
-LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
-
-# Object files are passed to linker before archives to prevent linking errors.
-# It is a bit of a hack but seems sufficient.
-EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN))\
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $(filter %.o,$(SANITIZED_^))\
-  $(filter-out %.o,$(SANITIZED_^)) $(LDFLAGS)
 
 
 # Argument 1 directory which should be created
