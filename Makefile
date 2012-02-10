@@ -34,5 +34,3 @@ all: $(TARGETS_$(TOP))
 # interpreting make files and started their execution.
 $(info Rules generated...)
 
-runtest: $(EXECUTABLES_$(TOP)/testrunner)
-	$(EXECUTABLES_$(TOP)/testrunner)
