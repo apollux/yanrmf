@@ -57,6 +57,13 @@ clean    : will remove all build output from the file system.
 runtests : Will build the testrunner, all test code and code under test, and
            the tests will be executed.
 
+BUILD_VARIANTS
+Two build variants are suported: debug and release. The variant being build can
+be controlled by setting VARIANT. The default build variant is debug.
+
+example:
+make VARIANT=release -j 4
+
 HOW TO ADD NEW TARGETS
 Targets are defined in files named Rules.mk. In a Rules.mk file targets for that
 directory are defined. It is possible to define executables, libraries and/or
