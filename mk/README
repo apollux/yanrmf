@@ -91,15 +91,25 @@ EXECUTABLES : space separated list of executable targets.
                             linker when linking the executable.
 
 IMPORTANT VARIABLES
-TOP             : absolute path to the root of the project.
-BUILD_DIRECTORY : absolute path to the build directory.
-d               : absolute path to the directory of the Rules.mk file currently
+TOP             : Absolute path to the root of the project.
+BUILD_DIRECTORY : Absolute path to the build directory.
+d               : Absolute path to the directory of the Rules.mk file currently
                   being evaluated.
 
-TEST_OBJS          : automatically populated list based on sources in the test
-                     directories.
-OBJECTS_UNDER_TEST : automatically populated list containing all object files
-                     for which a test exists.
+TEST_OBJS         : Automatically populated list based on sources in the test
+                    directories.
+TEST_DEPS         : This variable should typically be set to the objects under
+                    test. 
+TEST_DEPENDENCIES : Populated list of all test dependencies. Handy for building
+                  : a testrunner.
+
+INCLUDES_LOCATIONS        : List of include locations for own code. These will 
+                            be passed to the compiler with -I.
+SYSTEM_INCLUDES_LOCATIONS : List of 'system'/thirdparty include locations. These
+                            these will be passed to the compiler with -isystem,
+                            effectively suppressing any warnings from these 
+                            headers.
+
 
 FILES IN THE MK FOLDER
 footer.mk           : This file is included after each Rules.mk file creating
