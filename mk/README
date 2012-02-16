@@ -10,6 +10,9 @@ recipes necessary to get the target up to date. Calculating all dependencies up
 front has a major benefit: Make can make best use of the multiple cores of a
 processor.
 
+This framework is designed for out of tree builds, meaning the build output is
+located in a different directory than the actual sources.
+
 HOW DOES IT WORK
 When Make is invoked the framework searches for the root directory of the 
 project by looking for a file Rules.top (a symlink to the Rules.mk on that
@@ -54,6 +57,8 @@ A couple of special targets have been defined.
 all      : will build every target specified, not only the current directory
            and its subdirectories.
 clean    : will remove all build output from the file system.
+           Caution: make clean will simply remove the everything in the 
+           BUILD_DIRECTORY.
 runtests : Will build the testrunner, all test code and code under test, and
            the tests will be executed.
 
