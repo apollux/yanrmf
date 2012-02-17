@@ -22,6 +22,14 @@ include $(MK)/project_config.mk
 # Get user config to override project settings.
 -include $(MK)/user_config.mk
 
+# Unleash the full power of make!
+# Determine how many concurrent jobs may be executed
+ifdef JOBS
+MAKEFLAGS += -j $(JOBS)
+else
+MAKEFLAGS += -j $(shell grep processor /proc/cpuinfo | wc -l)
+endif
+
 # Where to put the compiled objects. You can e.g. make it different
 # depending on the target platform (e.g. for cross-compilation a good
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.

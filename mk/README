@@ -28,13 +28,13 @@ HOW TO INVOKE MAKE
 Make can be invoked by simply typing 'make' on the command line. It will search
 for a file called 'Makefile' and evaluate the default target.
 
-By default Make only uses a single thread. In order to speed up the
-building process and make use of all available cores, an additional option needs
-to be passed to Make.
+By default this framework will tell Make to allow for as many concurrent jobs as
+cpu cores are available. This can be overruled by setting the JOBS to the 
+desired number of jobs. In case of debugging an error, setting JOBS to one can 
+be helpfull.
 
-make -j 4
-
-This will tell Make to allow for a maximum of 4 concurrent jobs to run.
+example:
+make JOBS=2
 
 By default this framework will use "pretty printing" for build output, hiding
 the exact commands being executed by Make. Make can be invoked as:
@@ -50,8 +50,6 @@ the current directory and all sub directories.
 To specify a specific target to build Make should be invoked as follows:
 
 make <target>
-or
-make -j 4 <target>
 
 A couple of special targets have been defined.
 all      : will build every target specified, not only the current directory
