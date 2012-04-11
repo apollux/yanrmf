@@ -7,3 +7,7 @@ app_LDFLAGS = -lpthread
 
 cli_DEPS = cli.o cli_dep.o
 
+
+LIBRARIES = test.a
+
+test.a_DEPS = $(OBJS_$(d)) $(OBJS_$(d)/Dir_1) 
