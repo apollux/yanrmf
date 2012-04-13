@@ -14,7 +14,7 @@ COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 
 LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
   $(CC) -fPIC -shared -o
-LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) if [ -e $@ ] ; then rm $@; fi && $(AR) rcs ]
+LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) if [ -e $@ ] ; then rm $@; fi && $(AR) rcs
 LIBRARY_BUILDER = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 
 # Object files are passed to linker before archives to prevent linking errors.
