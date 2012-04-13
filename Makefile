@@ -35,5 +35,3 @@ all: $(TARGETS_$(TOP))
 $(info Rules generated...)
 $(info Build variant: $(VARIANT))
 
-runtest: $(EXECUTABLES_$(TOP)/testrunner)
-	$(EXECUTABLES_$(TOP)/testrunner)

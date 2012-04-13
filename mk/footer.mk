@@ -42,7 +42,10 @@ $(foreach lib,$(strip $(LIBRARIES_$(d))),$(eval $(call save_target_variables,$(l
 
 # add object depencies to OBJS_$(d) this might cause duplictates in the list
 # but this does not seem to be a problem...
-OBJS_$(d) += $(foreach lib,$(strip $(LIBRARIES_$(d))),$(addprefix $(OBJECT_PATH)/,$(DEPS_$(lib))))
+
+OBJS_$(d) += $(foreach lib,$(strip $(LIBRARIES_$(d))),$(addprefix $(OBJECT_PATH)/,$(filter %.o,$(filter-out /%,$(DEPS_$(lib))))))
+OBJS_$(d) += $(foreach lib,$(strip $(LIBRARIES_$(d))),$(filter /%.o,$(DEPS_$(lib))))
+
 endif
 
 
