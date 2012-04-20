@@ -10,7 +10,6 @@ CPPFLAGS = -MMD -MP -pthread -DDEBUG -ggdb $(addprefix -I,$(INCLUDES_LOCATIONS))
 
 # Convenience variables for unit test runner.
 TEST_OBJS :=
-TEST_DEPENDENCIES :=
 
 # Linker flags. The value below will use what you've specified for
 # particular target. If you have some flags or libraries
