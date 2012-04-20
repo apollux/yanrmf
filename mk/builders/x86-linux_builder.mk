@@ -1,5 +1,5 @@
-CFLAGS = -W -Wall
-CXXFLAGS = -Wold-style-cast -std=c++0x -Werror -pedantic-errors
+CFLAGS = -W -Wall -fPIC
+CXXFLAGS = -Wold-style-cast -std=c++0x -Werror -pedantic-errors -fPIC
 CFLAGS_DEBUG = -ggdb
 CFLAGS_RELEASE = -O2 -DNDEBUG -s
 CPPFLAGS = -MMD -MP -pthread $(addprefix -I,$(INCLUDES_LOCATIONS))\
@@ -13,7 +13,8 @@ OBJECT_BUILDER.cpp = $(call echo_cmd,CXX $<,$(COLOR_BROWN)) $(CXX) $(CPPFLAGS) $
 OBJECT_BUILDER_SELECTOR	 = $(OBJECT_BUILDER$(suffix $<)) -o $@ $<
 
 LIBRARY_BUILDER.so = $(call echo_cmd,Creating library $@,$(COLOR_PURPLE))\
-  $(CC) -fPIC -shared -o
+  $(CC) -shared -o
+#remove existing archive before creating new one. Objects no longer in use could still remain in archive
 LIBRARY_BUILDER.a = $(call echo_cmd,Creating archive $@,$(COLOR_PURPLE)) if [ -e $@ ] ; then rm $@; fi && $(AR) rcs
 LIBRARY_BUILDER_SELECTOR = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 
