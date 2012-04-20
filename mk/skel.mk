@@ -81,13 +81,13 @@ define object_skeleton
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
 $(OBJECT_PATH)/%.o: $(1)/%.cpp | $(OBJECT_PATH)
-	$(value COMPILECMD)
+	$(value OBJECT_BUILDER_SELECTOR)
 
 # Rule to create object from .c file
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
 $(OBJECT_PATH)/%.o: $(1)/%.c | $(OBJECT_PATH)
-	$(value COMPILECMD)
+	$(value OBJECT_BUILDER_SELECTOR)
 endef
 
 
@@ -103,7 +103,7 @@ abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
 $(1): $$(abs_deps) | $(LIBRARY_PATH)
-	$(value LIBRARY_BUILDER)
+	$(value LIBRARY_BUILDER_SELECTOR)
 endef
 
 
@@ -118,7 +118,7 @@ abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
 $(1): $$(abs_deps) | $(EXECUTABLE_PATH)
-	$(value EXECUTABLE_BUILDER)
+	$(value EXECUTABLE_BUILDER_SELECTOR)
 endef
 
 # Store al dependencies from the current Rules.mk for the target passed as
