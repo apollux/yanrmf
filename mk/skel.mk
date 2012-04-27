@@ -96,9 +96,10 @@ define library_skeleton
 # absolute paths are needed for the prerequisites 
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
+abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.so,$$(rel_deps)))
+#TODO this does not make sense for libraries?
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
-#todo! special case for .so. Not implemented
 
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
@@ -112,8 +113,9 @@ define executable_skeleton
 # absolute paths are needed for the prerequisites 
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
-abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
+abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.so,$$(rel_deps)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
+abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.

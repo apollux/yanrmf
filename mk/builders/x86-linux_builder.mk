@@ -20,9 +20,13 @@ LIBRARY_BUILDER_SELECTOR = $(LIBRARY_BUILDER$(suffix $@)) $@ $(SANITIZED_^)
 
 # Object files are passed to linker before archives to prevent linking errors.
 # It is a bit of a hack but seems sufficient.
+
+#g++ -fPIC -MMD -MP -pthread -ggdb -o /home/andre/workspace/nonrec-make_own_attempt/build/ex1/debug/out/main /home/andre/workspace/nonrec-make_own_attempt/build/ex1/debug/obj/main.o -L /home/andre/workspace/nonrec-make_own_attempt/build/ex1/Dir_2/debug/lib/ -l dir_2 -Wl,-rpath,/home/andre/workspace/nonrec-make_own_attempt/build/ex1/Dir_2/debug/lib/,--enable-new-dtags
+SO_LOCATION = $(dir $(filter %.so,$(SANITIZED_^)))
+SO_LIB_NAMES = $(subst lib,,$(basename $(notdir $(filter %.so,$(SANITIZED_^)))))
 EXECUTABLE_BUILDER = $(call echo_cmd,Creating executable $@,$(COLOR_GREEN)) \
-  $(CXX) $(CXXFLAGS) $(CPPFLAGS) \
+  $(CXX) $(CXXFLAGS) $(CPPFLAGS)\
   $(if $(findstring debug,$(VARIANT)),$(CFLAGS_DEBUG),$(CFLAGS_RELEASE)) \
-  -o $@ $(filter %.o,$(SANITIZED_^)) $(filter-out %.o,$(SANITIZED_^)) $(LDFLAGS)
+  -o $@ $(filter %.o,$(SANITIZED_^)) $(filter %.a,$(SANITIZED_^)) $(LDFLAGS) $(addprefix -L,$(SO_LOCATION)) $(addprefix -l,$(SO_LIB_NAMES))
 
 EXECUTABLE_BUILDER_SELECTOR = $(EXECUTABLE_BUILDER)
