@@ -108,10 +108,6 @@ d               : Absolute path to the directory of the Rules.mk file currently
 
 TEST_OBJS         : Automatically populated list based on sources in the test
                     directories.
-TEST_DEPS         : This variable should typically be set to the objects under
-                    test. 
-TEST_DEPENDENCIES : Populated list of all test dependencies. Handy for building
-                  : a testrunner.
 
 INCLUDES_LOCATIONS        : List of include locations for own code. These will 
                             be passed to the compiler with -I.

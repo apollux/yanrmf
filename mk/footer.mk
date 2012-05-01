@@ -66,15 +66,6 @@ OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(addprefix $(OBJECT_PAT
 OBJS_$(d) += $(foreach exe,$(strip $(EXECUTABLES_$(d))),$(filter /%.o,$(DEPS_$(exe))))
 endif
 
-ifdef TEST_DEPS
-abs_deps := $(filter /%,$(TEST_DEPS))
-rel_deps := $(filter-out /%,$(TEST_DEPS))
-abs_deps += $(addprefix $(LIBRARY_PATH)/,$(filter %.a,$(rel_deps)))
-abs_deps += $(addprefix $(OBJECT_PATH)/,$(filter %.o,$(rel_deps)))
-
-TEST_DEPENDENCIES += $(abs_deps)
-endif
-
 # Build the rules for the subtree
 # Subtree rules should be build before creating recepies for current directory
 # since these will probably depend on subtree targets
