@@ -1,3 +1,6 @@
+# convenience variable to have a ',' char in a string
+comma := ,
+
 include $(MK)/helper_functions.mk
 
 INCLUDES_LOCATIONS := 
