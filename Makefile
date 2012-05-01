@@ -14,7 +14,7 @@ endif
 
 MK := $(TOP)/mk
 
-.PHONY: all clean clean_all runtest
+.PHONY: all clean
 .DEFAULT_GOAL := dir_$(RUNDIR)
 
 clean: 
@@ -29,6 +29,9 @@ include $(MK)/footer.mk
 
 # Whole tree targets
 all: $(TARGETS_$(TOP))
+
+# Include project specific targets if exists
+-include $(MK)/project_targets.mk
 
 # This is just a convenience - to let you know when make has stopped
 # interpreting make files and started their execution.

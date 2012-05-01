@@ -1,7 +1,7 @@
 CFLAGS = -W -Wall -fPIC
 CXXFLAGS = -Wold-style-cast -std=c++0x -Werror -pedantic-errors -fPIC
 CFLAGS_DEBUG = -ggdb
-CFLAGS_RELEASE = -O2 -DNDEBUG -s
+CFLAGS_RELEASE = -O2 -DNDEBUG 
 CPPFLAGS = -MMD -MP -pthread $(addprefix -I,$(INCLUDES_LOCATIONS))\
   $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
 

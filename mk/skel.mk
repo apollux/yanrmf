@@ -99,8 +99,6 @@ define library_skeleton
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
 abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.so,$$(rel_deps)))
-#TODO this does not make sense for libraries?
-abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.a,$$(rel_deps)))
 abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
