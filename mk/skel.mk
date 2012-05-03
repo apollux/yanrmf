@@ -96,15 +96,22 @@ endef
 # Argument 1 library for which the skeleton is created
 define library_skeleton
 # absolute paths are needed for the prerequisites 
+# only dependencies on objects are expected
 abs_deps := $$(filter /%,$$(DEPS_$(1)))
 rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
-abs_deps += $$(addprefix $(LIBRARY_PATH)/,$$(filter %.so,$$(rel_deps)))
 abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 
 # An 'order-only' ('|') prerequisite is placed on the output directory. It must
 # exist before trying to put files in it.
 $(1): $$(abs_deps) | $(LIBRARY_PATH)
 	$(value LIBRARY_BUILDER_SELECTOR)
+ifeq ($(VARIANT),release)
+ifeq ($(suffix $(1)),.so)
+	@objcopy --only-keep-debug $(1) $(1).debug
+	@strip --strip-debug --strip-unneeded $(1)
+	@objcopy --add-gnu-debuglink=$(1).debug $(1)
+endif
+endif
 endef
 
 
@@ -121,6 +128,12 @@ abs_deps += $$(addprefix $(OBJECT_PATH)/,$$(filter %.o,$$(rel_deps)))
 # exist before trying to put files in it.
 $(1): $$(abs_deps) | $(EXECUTABLE_PATH)
 	$(value EXECUTABLE_BUILDER_SELECTOR)
+ifeq ($(VARIANT),release)
+	@objcopy --only-keep-debug $(1) $(1).debug
+	@strip --strip-debug --strip-unneeded $(1)
+	@objcopy --add-gnu-debuglink=$(1).debug $(1)
+endif
+
 endef
 
 # Store al dependencies from the current Rules.mk for the target passed as
