@@ -7,7 +7,7 @@ INCLUDES_LOCATIONS :=
 SYSTEM_INCLUDES_LOCATIONS :=
 
 
-# Convenience variables for unit test runner.
+# Convenience variable for unit test runner.
 TEST_OBJS :=
 
 # Linker flags. The value below will use what you've specified for
@@ -37,9 +37,9 @@ else
 MAKEFLAGS += -j $(shell grep processor /proc/cpuinfo | wc -l)
 endif
 
-# Where to put the compiled objects. You can e.g. make it different
-# depending on the target platform (e.g. for cross-compilation a good
-# choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
+# Where to put the compiled binaries.
+# In the $(BUILD_DIRECTORY) the project folder structre is copied, build variant folders and
+# seperate folders for objects, libraries and executables are added.
 OBJECT_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(OBJDIR)
 LIBRARY_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(LIBDIR)
 EXECUTABLE_PATH = $(BUILD_DIRECTORY)/$(call relative_path,$(TOP),$(d))/$(VARIANT)/$(EXEDIR)
@@ -133,7 +133,6 @@ ifeq ($(VARIANT),release)
 	@strip --strip-debug --strip-unneeded $(1)
 	@objcopy --add-gnu-debuglink=$(1).debug $(1)
 endif
-
 endef
 
 # Store al dependencies from the current Rules.mk for the target passed as
