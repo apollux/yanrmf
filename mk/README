@@ -65,7 +65,7 @@ Two build variants are suported: debug and release. The variant being build can
 be controlled by setting VARIANT. The default build variant is debug.
 
 example:
-make VARIANT=release -j 4
+make VARIANT=release
 
 HOW TO ADD NEW TARGETS
 Targets are defined in files named Rules.mk. In a Rules.mk file targets for that
@@ -84,7 +84,12 @@ SRCS        : space separated list of source files. Wildcards like *.cpp can
               be used.
 OBJS        : contains a list of all object files specified for the current
               directory.
-LIBRARIES   : space separated list of library targets.
+LIBRARIES   : space separated list of library targets. A library target should
+              be sufixed with either .a or .so. A library sufixed with .a will
+              be a archive of objects. A library sufixed with .so will be 
+              compiled as a shared object. Further more a .so library needs to
+              comply to the folling naming convention: "lib<name of library>.so".
+              This has to do with naming conventions used by the GNU toolchain.
 EXECUTABLES : space separated list of executable targets.
 
 <library name>_DEPS       : space separated list of dependencies for this 
@@ -94,8 +99,15 @@ EXECUTABLES : space separated list of executable targets.
 <executable name>_DEPS    : space separated list of dependencies for this 
                             executable. This can be set to specific objects or
                             to $(OBJS) for all objects specified by SRCS. 
-                            Archives can be set as a dependency for an 
-                            executable as well.
+                            Archives and shared objects can be set as a dependency of
+                            an executable as well.
+                            Note on shared objects: if libfoo.so is a dependency
+                            of our executable the path to libfoo.so will be passed
+                            to gcc with -L the library is linked with -lfoo. The
+                            path to libfoo.so is placed in the dynamic section of
+                            the executable so the runtime linker can find the so
+                            without the need for the .so's to be installed. This
+                            is convenient while developing.
 
 <executable name>_LDFLAGS : space separated list of arguments passed to the
                             linker when linking the executable.
