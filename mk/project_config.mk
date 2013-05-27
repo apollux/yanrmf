@@ -13,3 +13,5 @@ LDFLAGS +=
 CC := gcc
 CXX := g++
 AR := ar
+
+RPATH := 

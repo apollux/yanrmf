@@ -1,4 +1,5 @@
 WHAT DOES IT DO
+===============
 This is a framework for Make with as main goal: simplicity in use. Writing
 makefiles can be a tedious job. With this framework all the complex Make
 structures are in one place, hidden from the user. With writing simple Rules.mk
@@ -14,6 +15,7 @@ This framework is designed for out of tree builds, meaning the build output is
 located in a different directory than the actual sources.
 
 HOW DOES IT WORK
+================
 When Make is invoked the framework searches for the root directory of the 
 project by looking for a file Rules.top (a symlink to the Rules.mk on that
 level). Than it will traverse the directory structure scanning the directories 
@@ -25,6 +27,7 @@ Once all Rules.mk files are read, it will build the rules for the targets. After
 that is done, Make will execute all recepies to get the target up to date.
 
 HOW TO INVOKE MAKE
+==================
 Make can be invoked by simply typing 'make' on the command line. It will search
 for a file called 'Makefile' and evaluate the default target.
 
@@ -68,6 +71,7 @@ example:
 make VARIANT=release
 
 HOW TO ADD NEW TARGETS
+======================
 Targets are defined in files named Rules.mk. In a Rules.mk file targets for that
 directory are defined. It is possible to define executables, libraries and/or
 object files as target.
@@ -130,6 +134,7 @@ SYSTEM_INCLUDES_LOCATIONS : List of 'system'/thirdparty include locations. These
 
 
 FILES IN THE MK FOLDER
+======================
 footer.mk           : This file is included after each Rules.mk file creating
                       the actual rules.
 header.mk           : this file is included every time before a Rules.mk is 
