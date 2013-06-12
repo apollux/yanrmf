@@ -67,8 +67,6 @@ all      : will build every target specified, not only the current directory
 clean    : will remove all build output from the file system.
            Caution: make clean will simply remove the everything in the 
            BUILD_DIRECTORY.
-runtests : Will build the testrunner, all test code and code under test, and
-           the tests will be executed.
 
 BUILD_VARIANTS
 Two build variants are suported: debug and release. The variant being build can
