@@ -1,3 +1,10 @@
+YANRMF - Yet Another Non Recursive Make Framework
+
+ACKNOWLEDGMENT
+==============
+This work is heavily inspired by the Non-recursive make build system created Andrzej Ostruszka
+URL: http://github.com/aostruszka/nonrec-make
+
 WHAT DOES IT DO
 ===============
 This is a framework for Make with as main goal: simplicity in use. Writing

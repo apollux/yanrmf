@@ -2,6 +2,9 @@ CFLAGS = -W -Wall -fPIC
 CXXFLAGS = -W -Wall -Wold-style-cast -Werror -std=c++0x -pedantic-errors -fPIC
 CFLAGS_DEBUG = -ggdb -O0
 CFLAGS_RELEASE = -O2 -DNDEBUG -ggdb
+
+# using -isystem for system / thirdparty includes. GCC will not propagate warnings from headers those locations.
+# Since -Werror is in place this is really important
 CPPFLAGS = -MMD -MP -pthread $(addprefix -I,$(INCLUDES_LOCATIONS))\
   $(addprefix -isystem,$(SYSTEM_INCLUDES_LOCATIONS)) 
 
